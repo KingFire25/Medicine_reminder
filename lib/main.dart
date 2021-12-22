@@ -144,8 +144,22 @@ class SecondRoute extends StatefulWidget {
 }
 
 class _SecondRouteState extends State<SecondRoute> {
-  String radioItem = '';
+  String radioItem = 'Item 1';
   int value = 0;
+  bool check = false;
+
+Map<String, bool> List = {
+    'SUN' : false,
+    'MON' : false,
+    'TUE' : false,
+    'WED' : false,
+    'THU' : false,
+    'FRI' : false,
+    'SAT' : false,
+  };
+
+  var holder_1 = [];  
+
   Widget CustomRadioButton(String text, int index) {
     return OutlineButton(
       onPressed: () {
@@ -163,8 +177,12 @@ class _SecondRouteState extends State<SecondRoute> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       borderSide: BorderSide(color: Colors.black),
     );
-  }
 
+  }
+  
+  String getkeys(int a){
+    return List.keys.elementAt(a);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,14 +190,16 @@ class _SecondRouteState extends State<SecondRoute> {
       appBar: AppBar(
         title: const Text("Add reminder"),
       ),
-      body: Column(
+      body:SingleChildScrollView(
+      child:
+       Column(
         children: <Widget>[
           Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 
-                const Text('Who\s this for',style: TextStyle(
+                const Text('Who\'s this for ?',style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),),
@@ -194,6 +214,7 @@ class _SecondRouteState extends State<SecondRoute> {
                 });
               },
             ),
+            
  
            RadioListTile(
               groupValue: radioItem,
@@ -209,6 +230,7 @@ class _SecondRouteState extends State<SecondRoute> {
               ],
             ),
           ),
+          
 
           Container(
             child: Column(
@@ -225,10 +247,10 @@ class _SecondRouteState extends State<SecondRoute> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CustomRadioButton("TYPE 1", 1),
-                      CustomRadioButton("TYPE 2", 2),
-                      CustomRadioButton("TYPE 3", 3),
-                      CustomRadioButton("TYPE 4", 4),
+                      CustomRadioButton("Injection", 1),
+                      CustomRadioButton("Drops", 2),
+                      CustomRadioButton("Tablet", 3),
+                      CustomRadioButton("Capsules", 4),
                     ],
                   ),
                 )
@@ -253,92 +275,75 @@ class _SecondRouteState extends State<SecondRoute> {
           ),
 
           Container(
+            margin: EdgeInsets.all(10),
+            
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 
                 const Text('How many times in a week ?',style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),),
-                Container(child: Text('Multi-Radio Butttons'),),
-
+              Container(
                 
+                margin: EdgeInsets.all(20),
+                
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                
+             for(int i=0;i<7;i++)     
+             Container(
+               margin: EdgeInsets.all(5),
+               padding: EdgeInsets.all(0),
+               
+                  width: 32,
+                  child:
+                  Column(
+                    children: [                  
+                      Text(List.keys.elementAt(i),style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[800],
+                      ),),
+                      CheckboxListTile(
+                      activeColor: Colors.red,
+                      value: List.values.elementAt(i), onChanged: (value){
+                      setState(() {
+                        List[List.keys.elementAt(i)] = value!;
+                      });
+                     }),
+                    ],
+                  ) 
+                  ),
+               
+             
+              ],),
+            ),
+
+        
                 
               ],
             ),
           ),
 
 
-          Container(     
-          ),
           Container(
-          alignment: Alignment.center,
-          child: ElevatedButton(
-          onPressed: () {
+           margin: EdgeInsets.all(10),   
+            height: 50,
+            width: 200,
+            child: FloatingActionButton.extended(onPressed: () {
             Navigator.pop(context);
-          },
-          child: const Text('Save'),
-        ),
-          )
+          }, 
+            label: const Text('Save'),
+            icon: const Icon(Icons.save_outlined),
+            backgroundColor: Colors.pink,),
+            ),
+          
         ],
         
-      ),
+      ),),
     );
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  
-
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
-
-//   void _incrementCounter() {
-//     setState(() {
-//       _counter++;
-     
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-    
-//     return Scaffold(
-//       appBar: AppBar(
-        
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-        
-//         child: Column(
-          
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-            
-//             const Text(
-//               'You have pushed the button this many times:',
-//             ),
-//             Text(
-//               '$_counter',
-//               style: Theme.of(context).textTheme.headline4,
-//             ),
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: _incrementCounter,
-//         tooltip: 'Increment',
-//         child: const Icon(Icons.add),
-//       ),
-//     );
-//   }
-// }
