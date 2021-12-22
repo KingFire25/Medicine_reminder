@@ -39,7 +39,19 @@ List<int> bottom = <int>[0];
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Title'),
+      centerTitle: true,
+      title: Text('MEDICINE REMINDER'),
+      leading: IconButton(
+        onPressed: () {},
+        icon: Icon(Icons.home),
+      ),
+      actions: [
+        
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.settings),
+        ),
+      ],
       ),
       body: Column(  
         children: <Widget>[  
@@ -51,6 +63,7 @@ List<int> bottom = <int>[0];
           calendarFormat: CalendarFormat.week,),
                  
           Container(
+            margin: EdgeInsets.all(20),
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -65,15 +78,15 @@ List<int> bottom = <int>[0];
           ),
               
           Container(
-          margin: EdgeInsets.all(40),
-          height: 250,
+          margin: EdgeInsets.all(10),
+          height: 300,
           width:300,
           color: Colors.grey[300],
           padding: EdgeInsets.all(10),
           child: Column(
           children: [
           SizedBox(
-          height: 230.0,
+          height: 280.0,
           child: ListView(
           scrollDirection: Axis.vertical,
           children: <Widget>[
@@ -102,15 +115,9 @@ List<int> bottom = <int>[0];
   ],
 )
         ),
-        
-             
-        ], 
-         
-      ),
-       bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(40.0),
-        child: 
-         Container(       
+
+        Container(    
+            margin: EdgeInsets.all(10),   
             height: 50,
             width: 200,
             child: FloatingActionButton.extended(onPressed: () {
@@ -122,8 +129,9 @@ List<int> bottom = <int>[0];
             label: const Text('Add Schedule'),
             icon: const Icon(Icons.add_circle),
             backgroundColor: Colors.pink,),
-            ),
-          ),    
+            ),            
+        ],        
+      ),         
     );
   }
 }
