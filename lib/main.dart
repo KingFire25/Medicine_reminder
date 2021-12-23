@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'dart:async';
+import 'package:intl/intl.dart';
 
 
 
@@ -147,6 +148,8 @@ class _SecondRouteState extends State<SecondRoute> {
   String radioItem = 'Item 1';
   int value = 0;
   bool check = false;
+  String time = '9:00 AM';
+  bool isvisibile = false;
 
 Map<String, bool> List = {
     'SUN' : false,
@@ -158,7 +161,7 @@ Map<String, bool> List = {
     'SAT' : false,
   };
 
-  var holder_1 = [];  
+  //var holder_1 = [];  
 
   Widget CustomRadioButton(String text, int index) {
     return OutlineButton(
@@ -180,11 +183,52 @@ Map<String, bool> List = {
 
   }
   
-  String getkeys(int a){
-    return List.keys.elementAt(a);
-  }
+  
+  TimeOfDay selectedTime = TimeOfDay.now();
 
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? timeOfDay = await showTimePicker(
+        context: context, 
+         initialTime: selectedTime,
+         initialEntryMode: TimePickerEntryMode.input,
+    );
+      if(timeOfDay!=null) {
+        setState(() {   
+        selectedTime = timeOfDay;
+        if(selectedTime.hour>12) {
+          time=(selectedTime.hour-12).toString();
+        }
+        else {
+          time=selectedTime.hour.toString();
+        }
+        time=time+':';
+        if(selectedTime.minute<10)time+='0';
+        time+=selectedTime.minute.toString()+' ';
+        if(selectedTime.hour>11) {
+          time+='PM';
+        } else {
+          time+='AM';
+        }
+      });
+      }
+  }
+  
   @override
+  
+
+  // selectTime(BuildContext context) async {
+  //     final TimeOfDay? timeOfDay = await showTimePicker(
+  //       context: context,
+  //       initialTime: selectedTime,
+  //       initialEntryMode: TimePickerEntryMode.dial,
+  //     ); 
+  //       {
+  //         setState(() {
+  //           selectedTime = timeOfDay!;
+  //         });
+  //       }
+  // }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -211,26 +255,42 @@ Map<String, bool> List = {
               onChanged: (val) {
                 setState(() {
                   radioItem = val.toString();
+                  isvisibile=!isvisibile;
                 });
               },
-            ),
-            
- 
-           RadioListTile(
+            ),          
+             RadioListTile(
               groupValue: radioItem,
-              title: Text('SOMEBODY ELSE'),
+              title: Text('SOMEONE ELSE'),
               value: 'Item 2',
               onChanged: (val) {
                 setState(() {
                   radioItem = val.toString();
+                  isvisibile=!isvisibile;
                 });
               },
-            ),
-
+              ),
               ],
             ),
           ),
           
+          Visibility(
+            visible: isvisibile,
+            child:
+          Container(
+                height: 60,
+                width: 350, 
+                child: TextField(
+                decoration: InputDecoration(
+                isDense: true,
+                fillColor: Colors.blue.shade100,
+                border: OutlineInputBorder(),
+                labelText: 'Name',
+
+              ),
+            ),
+          ), 
+          ),
 
           Container(
             child: Column(
@@ -254,25 +314,52 @@ Map<String, bool> List = {
                     ],
                   ),
                 )
-                
-            
-
               ],
             ),
           ),
+
+
+          Container(
+            
+          ),
+
 
           Container(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const Text('Time',style: TextStyle(
+                const Text('Set Time',style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),),
-                Container(child: Text('add time here'),),
+                // Container(
+                  
+                //   child:  
+                //   Text("${TimeOfDay.now().hour}:${TimeOfDay.now().minute}",style: TextStyle(
+                //     fontSize: 50,
+                //   ),),
+                //   ),
+                ElevatedButton(
+                onPressed: () {
+                  _selectTime(context);
+                },
+              child: Text(time,style: TextStyle(
+                fontSize: 30,
+              ),),
+            ),
+                
               ],
+              
             ),
           ),
+          // Container(
+          //   width: 50,
+          //   child: TextField(
+          //     decoration: InputDecoration(
+          //       border: OutlineInputBorder(),
+          //     ),
+          //   ),
+          // ),
 
           Container(
             margin: EdgeInsets.all(10),
@@ -320,10 +407,7 @@ Map<String, bool> List = {
                
              
               ],),
-            ),
-
-        
-                
+              ),  
               ],
             ),
           ),
@@ -343,7 +427,10 @@ Map<String, bool> List = {
           
         ],
         
+        
       ),),
+      
     );
+    
   }
 }
