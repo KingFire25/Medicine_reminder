@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'package:intl/intl.dart';
-
-
 
 void main() =>
   runApp(const MyApp());
@@ -34,34 +31,34 @@ const HomeP({ Key? key }) : super(key: key);
 }
 
 class _HomePState extends State<HomeP> {
-List<int> top = <int>[];
-List<int> bottom = <int>[0];
+ List<String> entries = <String>['A', 'B', 'C', 'D', 'E'];
+ List<int> colorCodes = <int>[200,400];
+
   @override
   Widget build(BuildContext context){
-    return Scaffold(
+    return 
+    Scaffold(
       appBar: AppBar(
       centerTitle: true,
       title: Text('MEDICINE REMINDER'),
-      leading: IconButton(
-        onPressed: () {},
-        icon: Icon(Icons.home),
-      ),
+      
       actions: [
-        
         IconButton(
           onPressed: () {},
           icon: Icon(Icons.settings),
         ),
       ],
       ),
-      body: Column(  
+      body: SingleChildScrollView(child: 
+      Column(  
         children: <Widget>[  
           
           TableCalendar(
           focusedDay: DateTime.now(), 
           firstDay: DateTime.utc(2010, 10, 16), 
           lastDay: DateTime.utc(2030, 3, 14),
-          calendarFormat: CalendarFormat.week,),
+          calendarFormat: CalendarFormat.week,
+          ),
                  
           Container(
             margin: EdgeInsets.all(20),
@@ -88,30 +85,39 @@ List<int> bottom = <int>[0];
           children: [
           SizedBox(
           height: 280.0,
-          child: ListView(
-          scrollDirection: Axis.vertical,
-          children: <Widget>[
-          
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-          Text("hi"),
-        ],
-      ),
+            child: 
+            ListView.separated(
+            padding: const EdgeInsets.all(8),
+            itemCount: entries.length,
+            itemBuilder: (BuildContext context, int index) {
+            return Container(
+            height: 50,
+            color: Colors.amber[colorCodes[index%colorCodes.length]],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: 
+            [
+              Text('Entry ${entries[index]}'),
+              Container
+              ( margin: EdgeInsets.all(10),
+                child:
+                FloatingActionButton(
+                  heroTag: 'btn'+index.toString(),
+                  child: const Icon(Icons.close_sharp,color: Colors.red,),
+                  backgroundColor: Colors.white,                  
+                  onPressed: (){
+                    setState(() {
+                      entries.removeAt(index);
+                    });
+                  },
+                ),
+                )
+            ]),
+    );
+  },
+  separatorBuilder: (BuildContext context, int index) => const Divider(),
+),
+
     ),
   ],
 )
@@ -121,7 +127,10 @@ List<int> bottom = <int>[0];
             margin: EdgeInsets.all(10),   
             height: 50,
             width: 200,
-            child: FloatingActionButton.extended(onPressed: () {
+            child: 
+            FloatingActionButton.extended(
+            heroTag: 'btn 1',
+            onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SecondRoute()),
@@ -132,7 +141,7 @@ List<int> bottom = <int>[0];
             backgroundColor: Colors.pink,),
             ),            
         ],        
-      ),         
+      ),),         
     );
   }
 }
@@ -151,7 +160,7 @@ class _SecondRouteState extends State<SecondRoute> {
   String time = '9:00 AM';
   bool isvisibile = false;
 
-Map<String, bool> List = {
+Map<String, bool> WEEK = {
     'SUN' : false,
     'MON' : false,
     'TUE' : false,
@@ -164,7 +173,10 @@ Map<String, bool> List = {
   //var holder_1 = [];  
 
   Widget CustomRadioButton(String text, int index) {
-    return OutlineButton(
+    return 
+    Container(     
+      width: 80,
+      child:OutlineButton(
       onPressed: () {
         setState(() {
           value = index;
@@ -175,12 +187,13 @@ Map<String, bool> List = {
         text,
         style: TextStyle(
           color: (value == index) ? Colors.red : Colors.black,
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
         ),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      borderSide: BorderSide(color: Colors.black),
-    );
-
+      borderSide: const BorderSide(color: Colors.black),     
+    ),);
   }
   
   
@@ -214,20 +227,7 @@ Map<String, bool> List = {
   }
   
   @override
-  
 
-  // selectTime(BuildContext context) async {
-  //     final TimeOfDay? timeOfDay = await showTimePicker(
-  //       context: context,
-  //       initialTime: selectedTime,
-  //       initialEntryMode: TimePickerEntryMode.dial,
-  //     ); 
-  //       {
-  //         setState(() {
-  //           selectedTime = timeOfDay!;
-  //         });
-  //       }
-  // }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -286,7 +286,6 @@ Map<String, bool> List = {
                 fillColor: Colors.blue.shade100,
                 border: OutlineInputBorder(),
                 labelText: 'Name',
-
               ),
             ),
           ), 
@@ -308,9 +307,9 @@ Map<String, bool> List = {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       CustomRadioButton("Injection", 1),
-                      CustomRadioButton("Drops", 2),
+                      CustomRadioButton("Drop", 2),
                       CustomRadioButton("Tablet", 3),
-                      CustomRadioButton("Capsules", 4),
+                      CustomRadioButton("Capsule", 4),
                     ],
                   ),
                 )
@@ -318,13 +317,8 @@ Map<String, bool> List = {
             ),
           ),
 
-
           Container(
-            
-          ),
-
-
-          Container(
+            margin: EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -332,13 +326,7 @@ Map<String, bool> List = {
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),),
-                // Container(
-                  
-                //   child:  
-                //   Text("${TimeOfDay.now().hour}:${TimeOfDay.now().minute}",style: TextStyle(
-                //     fontSize: 50,
-                //   ),),
-                //   ),
+                
                 ElevatedButton(
                 onPressed: () {
                   _selectTime(context);
@@ -346,20 +334,11 @@ Map<String, bool> List = {
               child: Text(time,style: TextStyle(
                 fontSize: 30,
               ),),
-            ),
-                
-              ],
-              
+              ),               
+              ],             
             ),
           ),
-          // Container(
-          //   width: 50,
-          //   child: TextField(
-          //     decoration: InputDecoration(
-          //       border: OutlineInputBorder(),
-          //     ),
-          //   ),
-          // ),
+
 
           Container(
             margin: EdgeInsets.all(10),
@@ -390,22 +369,20 @@ Map<String, bool> List = {
                   child:
                   Column(
                     children: [                  
-                      Text(List.keys.elementAt(i),style: TextStyle(
+                      Text(WEEK.keys.elementAt(i),style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.green[800],
                       ),),
                       CheckboxListTile(
                       activeColor: Colors.red,
-                      value: List.values.elementAt(i), onChanged: (value){
+                      value: WEEK.values.elementAt(i), onChanged: (value){
                       setState(() {
-                        List[List.keys.elementAt(i)] = value!;
+                        WEEK[WEEK.keys.elementAt(i)] = value!;
                       });
                      }),
                     ],
                   ) 
-                  ),
-               
-             
+                  ),            
               ],),
               ),  
               ],
