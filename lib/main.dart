@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
+import 'global variables.dart';
 
 void main() =>
   runApp(const MyApp());
@@ -31,7 +32,7 @@ const HomeP({ Key? key }) : super(key: key);
 }
 
 class _HomePState extends State<HomeP> {
- List<String> entries = <String>['A', 'B', 'C', 'D', 'E'];
+ 
  List<int> colorCodes = <int>[200,400];
 
   @override
@@ -113,17 +114,17 @@ class _HomePState extends State<HomeP> {
                 ),
                 )
             ]),
-    );
-  },
-  separatorBuilder: (BuildContext context, int index) => const Divider(),
-),
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+        ) ,
 
-    ),
-  ],
-)
+        ),
+        ],
+        )
         ),
 
-        Container(    
+            Container(    
             margin: EdgeInsets.all(10),   
             height: 50,
             width: 200,
@@ -146,7 +147,10 @@ class _HomePState extends State<HomeP> {
   }
 }
 
+
+
 class SecondRoute extends StatefulWidget {
+  
   const SecondRoute({Key? key}) : super(key: key);
 
   @override
@@ -154,13 +158,13 @@ class SecondRoute extends StatefulWidget {
 }
 
 class _SecondRouteState extends State<SecondRoute> {
+  TextEditingController person = new TextEditingController();
   String radioItem = 'Item 1';
   int value = 0;
   bool check = false;
   String time = '9:00 AM';
   bool isvisibile = false;
-
-Map<String, bool> WEEK = {
+    Map<String, bool> WEEK = {
     'SUN' : false,
     'MON' : false,
     'TUE' : false,
@@ -281,6 +285,7 @@ Map<String, bool> WEEK = {
                 height: 60,
                 width: 350, 
                 child: TextField(
+                controller: person,
                 decoration: InputDecoration(
                 isDense: true,
                 fillColor: Colors.blue.shade100,
@@ -395,7 +400,8 @@ Map<String, bool> WEEK = {
             height: 50,
             width: 200,
             child: FloatingActionButton.extended(onPressed: () {
-            Navigator.pop(context);
+            entries.add(person.text);
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>const HomeP())).then((_) => setState(() {}));        
           }, 
             label: const Text('Save'),
             icon: const Icon(Icons.save_outlined),
