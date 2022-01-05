@@ -37,7 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   table_calendar: ^3.0.3
   flutter_local_notifications: ^9.1.5
-  
+  sqflite: ^2.0.1
+  path_provider:
 
 dev_dependencies:
   flutter_test:
