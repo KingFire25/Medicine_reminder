@@ -1,8 +1,9 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'global variables.dart';
 import 'package:reminder/database.dart';
 import 'package:reminder/model/notes.dart';
 
@@ -32,6 +33,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<int> colorCodes = <int>[200, 400];
+  late List<Notes> items;
+  bool isLoading =false;
+
+  @override
+  void initState(){
+    items=[];
+    super.initState();
+    refreshitems();
+  }
+
+  Future refreshitems() async{
+    setState(() => isLoading = true);
+    this.items = await ItemDatabase.instance.readallNotes();
+    setState(() => isLoading =false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +100,9 @@ class _HomePageState extends State<HomePage> {
                       width: 280,
                       child: ListView.separated(
                         padding: const EdgeInsets.all(8),
-                        itemCount: entries.length,
+                        itemCount: items.length,
                         itemBuilder: (BuildContext context, int index) {
+                          final item = items[index];
                           return Container(
                             height: 50,
                             color: Colors
@@ -94,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text('Entry ${entries[index]}'),
+                                  Text('Entry ${item.id}'),
                                   Container(
                                     margin: EdgeInsets.all(10),
                                     child: FloatingActionButton(
@@ -104,9 +121,11 @@ class _HomePageState extends State<HomePage> {
                                         color: Colors.red,
                                       ),
                                       backgroundColor: Colors.white,
-                                      onPressed: () {
+                                      onPressed: () async{
+                                        final id =int.parse(item.id.toString());
+                                        await ItemDatabase.instance.delete(id);
                                         setState(() {
-                                          entries.removeAt(index);
+                                        refreshitems();
                                         });
                                       },
                                     ),
@@ -390,9 +409,6 @@ class _EnterDetailsState extends State<EnterDetails> {
               width: 200,
               child: FloatingActionButton.extended(
                 onPressed: () async {
-                  
-                  entries.add(person.text);
-                  
                   await ItemDatabase.instance.create(Notes(name: person.text));
                   Navigator.push(
                           context,
