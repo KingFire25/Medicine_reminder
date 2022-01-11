@@ -23,11 +23,15 @@ class ItemDatabase {
   Future _createDB(Database db, int version) async {
     final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     final  textType = 'TEXT NOT NULL';
+    final integerType = 'INTEGER NOT NULL';
 
     await db.execute('''
     CREATE TABLE $tablenotes(
       ${Notesfield.id} $idType,
-      ${Notesfield.name} $textType 
+      ${Notesfield.name} $textType,
+      ${Notesfield.medtype} $integerType,
+      ${Notesfield.settime} $textType,
+      ${Notesfield.days} $textType
     )
     ''');
   }

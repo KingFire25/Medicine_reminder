@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'package:reminder/database.dart';
@@ -34,19 +31,37 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<int> colorCodes = <int>[200, 400];
   late List<Notes> items;
-  bool isLoading =false;
+  bool isLoading = false;
+  late String displaytime = '';
+
+  String TimeFormat(TimeOfDay s) {
+    if (s.hour > 12) {
+      displaytime = (s.hour - 12).toString();
+    } else {
+      displaytime = s.hour.toString();
+    }
+    displaytime = displaytime + ':';
+    if (s.minute < 10) displaytime += '0';
+    displaytime += s.minute.toString() + ' ';
+    if (s.hour > 11) {
+      displaytime += 'PM';
+    } else {
+      displaytime += 'AM';
+    }
+    return displaytime;
+  }
 
   @override
-  void initState(){
-    items=[];
+  void initState() {
+    items = [];
     super.initState();
     refreshitems();
   }
 
-  Future refreshitems() async{
+  Future refreshitems() async {
     setState(() => isLoading = true);
     this.items = await ItemDatabase.instance.readallNotes();
-    setState(() => isLoading =false);
+    setState(() => isLoading = false);
   }
 
   @override
@@ -111,7 +126,8 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text('Entry ${item.id}'),
+                                  Text(
+                                      '${item.name} ${item.medtype} ${TimeFormat(item.settime)} ${item.days}'),
                                   Container(
                                     margin: EdgeInsets.all(10),
                                     child: FloatingActionButton(
@@ -121,11 +137,12 @@ class _HomePageState extends State<HomePage> {
                                         color: Colors.red,
                                       ),
                                       backgroundColor: Colors.white,
-                                      onPressed: () async{
-                                        final id =int.parse(item.id.toString());
+                                      onPressed: () async {
+                                        final id =
+                                            int.parse(item.id.toString());
                                         await ItemDatabase.instance.delete(id);
                                         setState(() {
-                                        refreshitems();
+                                          refreshitems();
                                         });
                                       },
                                     ),
@@ -173,8 +190,9 @@ class EnterDetails extends StatefulWidget {
 
 class _EnterDetailsState extends State<EnterDetails> {
   TextEditingController person = new TextEditingController();
+  String selectedPerson ='YOU';
   String radioItem = 'Item 1';
-  int value = 0;
+  int meditem = 0;
   bool check = false;
   String time = '9:00 AM';
   bool isvisibile = false;
@@ -190,19 +208,19 @@ class _EnterDetailsState extends State<EnterDetails> {
 
   //var holder_1 = [];
 
-  Widget SelectPerson(String text, int index) {
+  Widget SelectMedType(String text, int index) {
     return Container(
       width: 80,
       child: OutlineButton(
         onPressed: () {
           setState(() {
-            value = index;
+            meditem = index;
           });
         },
         child: Text(
           text,
           style: TextStyle(
-            color: (value == index) ? Colors.red : Colors.black,
+            color: (meditem == index) ? Colors.red : Colors.black,
             fontWeight: FontWeight.w500,
             fontSize: 12,
           ),
@@ -213,7 +231,15 @@ class _EnterDetailsState extends State<EnterDetails> {
     );
   }
 
-  TimeOfDay selectedTime = TimeOfDay.now();
+  String SelectedDays(){
+    String temp='';
+    for(int i=0;i<WEEK.length;i++)
+    if(WEEK.values.elementAt(i)==true)temp+='1';
+    else temp+='0';
+    return temp;
+  }
+
+  TimeOfDay selectedTime = const TimeOfDay(hour: 09, minute: 00);
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
@@ -269,6 +295,7 @@ class _EnterDetailsState extends State<EnterDetails> {
                       setState(() {
                         radioItem = val.toString();
                         isvisibile = !isvisibile;
+                        selectedPerson = 'YOU';
                       });
                     },
                   ),
@@ -280,6 +307,7 @@ class _EnterDetailsState extends State<EnterDetails> {
                       setState(() {
                         radioItem = val.toString();
                         isvisibile = !isvisibile;
+                        selectedPerson = '';
                       });
                     },
                   ),
@@ -320,10 +348,10 @@ class _EnterDetailsState extends State<EnterDetails> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        SelectPerson("Injection", 1),
-                        SelectPerson("Drop", 2),
-                        SelectPerson("Tablet", 3),
-                        SelectPerson("Capsule", 4),
+                        SelectMedType("Injection", 1),
+                        SelectMedType("Drop", 2),
+                        SelectMedType("Tablet", 3),
+                        SelectMedType("Capsule", 4),
                       ],
                     ),
                   )
@@ -409,7 +437,9 @@ class _EnterDetailsState extends State<EnterDetails> {
               width: 200,
               child: FloatingActionButton.extended(
                 onPressed: () async {
-                  await ItemDatabase.instance.create(Notes(name: person.text));
+                  if(selectedPerson=='')selectedPerson=person.text;
+                  await ItemDatabase.instance
+                      .create(Notes(name: selectedPerson, medtype: meditem , settime: selectedTime, days: SelectedDays()));
                   Navigator.push(
                           context,
                           MaterialPageRoute(
