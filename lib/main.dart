@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'package:MedRem/database.dart';
-import 'package:MedRem/model/notes.dart';
+import 'package:reminder/database.dart';
+import 'package:reminder/model/notes.dart';
 
 void main() => runApp(const MyApp());
 
