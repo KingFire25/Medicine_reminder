@@ -25,15 +25,18 @@ class ItemDatabase {
     final  textType = 'TEXT NOT NULL';
     final integerType = 'INTEGER NOT NULL';
 
-    await db.execute('''
-    CREATE TABLE $tablenotes(
+    await db.execute(
+    '''
+    CREATE TABLE $tablenotes
+    (
       ${Notesfield.id} $idType,
       ${Notesfield.name} $textType,
       ${Notesfield.medtype} $integerType,
       ${Notesfield.settime} $textType,
       ${Notesfield.days} $textType
     )
-    ''');
+    '''
+    );
   }
 
   Future<Notes> create(Notes notes) async {
