@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'package:reminder/database.dart';
@@ -78,8 +79,7 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            TableCalendar
-              (
+            TableCalendar(
               focusedDay: selectedDay,
               firstDay: DateTime(2010),
               lastDay: DateTime(2030),
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.all(5),
                 child: Column(
                   children: [
-                    SizedBox(
+                    Expanded(
                       child: ListView.separated(
                         padding: const EdgeInsets.all(8),
                         itemCount: items.length,
@@ -243,9 +243,9 @@ class EnterDetails extends StatefulWidget {
 }
 
 class _EnterDetailsState extends State<EnterDetails> {
-  TextEditingController person = new TextEditingController(),name = new TextEditingController();
+  TextEditingController person = new TextEditingController(),name = new TextEditingController(),dur=new TextEditingController();
   String selectedPerson ='YOU',radioItem = 'Item 1';
-  int meditem = 0;
+  int meditem = 0,ind=0;
   bool check = false;
   String time = '9:00 AM';
   bool isvisibile = false;
@@ -266,6 +266,8 @@ class _EnterDetailsState extends State<EnterDetails> {
       width: 90,
       child: FlatButton(
         onPressed: () {
+          FocusScope.of(context).unfocus();
+          ind =index;
           setState(() {
             meditem = index;
           });
@@ -278,6 +280,84 @@ class _EnterDetailsState extends State<EnterDetails> {
             fontSize: (index==1)?15:17,
           ),
         ),
+      ),
+    );
+  }
+  int cnt=0;
+  Widget viewType(int abc)
+  {
+    switch (abc){
+      case 1:
+
+        break;
+      case 2:
+        break;
+      case 3:
+        return Container(
+          width: 300,
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              const Text('Amount of pills',style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Monteserat'
+              )),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.all(3),
+                    height: 40,
+                    width: 70,
+                    child: FloatingActionButton.extended(
+                      heroTag: 'sub',
+                      onPressed: () {
+                        setState(() {
+                          if(cnt>0) cnt--;
+                          else
+                            cnt=0;
+                        });
+                      },
+                      label: const Text('-',style: TextStyle(fontSize: 60,fontWeight: FontWeight.w300),),
+                      backgroundColor: Colors.deepOrange,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(4),
+                    height: 40,
+                    width: 100,
+                    child: Text(
+                      ' '+cnt.toString()+' Pills',style: TextStyle(fontSize: 30),
+                    ),
+                  ),
+                  Container(
+                      height: 40,
+                      width: 70,
+                      child:FloatingActionButton.extended(
+                        onPressed: () {
+                          setState(() {
+                            cnt++;
+                          });
+                        },
+                        label: const Text('+',style: TextStyle(fontSize: 30,fontWeight: FontWeight.w400),),
+                        backgroundColor: Colors.deepOrange,
+                      )
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        break;
+      case 4:
+
+    }
+    return Container(
+      width: 100,
+      height: 300,
+      child:Column(
+
       ),
     );
   }
@@ -339,8 +419,8 @@ class _EnterDetailsState extends State<EnterDetails> {
                 color: Colors.grey[700]
             ),),
           ),
-      body: SingleChildScrollView(
-        child: Column(
+      body:SingleChildScrollView(
+            child: Column(
           children: <Widget>[
             Container(
               child: Column(
@@ -374,7 +454,7 @@ class _EnterDetailsState extends State<EnterDetails> {
                     onChanged: (val) {
                       setState(() {
                         radioItem = val.toString();
-                        isvisibile = !isvisibile;
+                        isvisibile = true;
                         selectedPerson = '';
                       });
                     },
@@ -390,17 +470,22 @@ class _EnterDetailsState extends State<EnterDetails> {
                 child: TextField(
                   controller: person,
                   decoration: const InputDecoration(
-                    isDense: true,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                          color: Colors.blueGrey,
+                          width: 3),
+                    ),
                     hintText: "Enter Name",
+                    labelText: 'Name',
                   ),
                 ),
               ),
             ),
             Container(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Text(
+                children:const [
+                  Text(
                     'Medicine Name',
                     style: TextStyle(
                       color: Colors.deepOrange,
@@ -413,16 +498,57 @@ class _EnterDetailsState extends State<EnterDetails> {
             ),
             Visibility(
               visible: true,
-              child: Container(
-                height: 60,
-                width: 300,
-                child: TextField(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  TextFormField(
                   controller: name,
                   decoration: const InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                          color: Colors.blueGrey,
+                          width: 3),
+                    ),
                     isDense: true,
+                    labelText: 'Name',
                     hintText: "Enter Name",
                   ),
                 ),
+                  Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children:const [
+                        Text(
+                          'Medicine Duration',
+                          style: TextStyle(
+                            color: Colors.deepOrange,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextFormField(
+                    controller: dur,
+                    decoration: const InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                            color: Colors.blueGrey,
+                            width: 3),
+                      ),
+                      isDense: true,
+                      labelText: 'Duration',
+                      hintText: "Duration in days",
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                  ),
+                ],
               ),
             ),
             Container(
@@ -452,6 +578,12 @@ class _EnterDetailsState extends State<EnterDetails> {
                 ],
               ),
             ),
+
+            Visibility(
+              visible: ind>0?true:false,
+              child: viewType(ind),
+            ),
+
             Container(
               margin: EdgeInsets.all(10),
               child: Row(
@@ -474,7 +606,7 @@ class _EnterDetailsState extends State<EnterDetails> {
                     },
                     child: Text(
                       time,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Monteserat',
                         fontSize: 20,
                         color: Colors.black,
