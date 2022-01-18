@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'package:reminder/database.dart';
@@ -8,15 +10,11 @@ void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
   }
@@ -29,6 +27,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Decoration decoration = const BoxDecoration();
+  DateTime selectedDay=DateTime.now();
+  DateTime focusedDay=DateTime.now();
   List<int> colorCodes = <int>[200, 400];
   late List<Notes> items;
   bool isLoading = false;
@@ -68,40 +69,95 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text('MEDICINE REMINDER'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.settings),
-          ),
-        ],
+        backgroundColor: Colors.white,
+        elevation: 0,
+        titleSpacing: 20,
+        title : Text('Welcome',textAlign:TextAlign.start,
+            style: TextStyle(color: Colors.grey.shade600,fontSize: 35,fontFamily: 'Monteserat')
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             TableCalendar(
-              focusedDay: DateTime.now(),
-              firstDay: DateTime.utc(2010, 10, 16),
-              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: selectedDay,
+              firstDay: DateTime(2010),
+              lastDay: DateTime(2030),
+              headerVisible: false,
               calendarFormat: CalendarFormat.week,
+              onDaySelected:(DateTime selectDay,DateTime focusDay){
+                setState(() {
+                  selectedDay=selectDay;
+                  focusedDay=focusDay;
+                });
+                print(focusedDay);
+              },
+              calendarStyle: CalendarStyle(
+
+                defaultDecoration: const BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.all(Radius.circular(9)),
+                ),
+                weekendDecoration: const BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.all(Radius.circular(9)),
+                ),
+                defaultTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 20
+                ),
+                weekendTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 20
+                ),
+
+                todayDecoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  shape: BoxShape.rectangle,
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
+                ),
+
+                selectedDecoration: BoxDecoration(
+                  color: Colors.orange[600],
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+                selectedTextStyle: const TextStyle(color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16),
+                todayTextStyle: const TextStyle(color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16),
+              ),
+              daysOfWeekStyle: const DaysOfWeekStyle(
+                  weekdayStyle: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  weekendStyle: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                  )
+              ),
+
+              daysOfWeekHeight: 21,
+              selectedDayPredicate:(DateTime date){
+                return isSameDay(selectedDay,date);
+              },
+
             ),
             Container(
-              margin: EdgeInsets.all(20),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Colors.green[900],
-              ),
-              child: Text(
-                'Upcoming Reminders:',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child:
+              Text('Upcoming Reminders:',style: TextStyle(
+                color: Colors.grey[800],
+                fontSize: 30,
+                fontFamily: 'VS',
+                fontWeight: FontWeight.w600,
+              ),),
             ),
+
             Container(
                 margin: EdgeInsets.all(10),
                 height: 300,
@@ -110,9 +166,7 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.all(5),
                 child: Column(
                   children: [
-                    SizedBox(
-                      height: 280,
-                      width: 280,
+                    Expanded(
                       child: ListView.separated(
                         padding: const EdgeInsets.all(8),
                         itemCount: items.length,
@@ -189,10 +243,9 @@ class EnterDetails extends StatefulWidget {
 }
 
 class _EnterDetailsState extends State<EnterDetails> {
-  TextEditingController person = new TextEditingController();
-  String selectedPerson ='YOU';
-  String radioItem = 'Item 1';
-  int meditem = 0;
+  TextEditingController person = new TextEditingController(),name = new TextEditingController(),dur=new TextEditingController();
+  String selectedPerson ='YOU',radioItem = 'Item 1';
+  int meditem = 0,ind=0;
   bool check = false;
   String time = '9:00 AM';
   bool isvisibile = false;
@@ -206,13 +259,15 @@ class _EnterDetailsState extends State<EnterDetails> {
     'SAT': false,
   };
 
-  //var holder_1 = [];
+  var holder_1 = [];
 
   Widget SelectMedType(String text, int index) {
     return Container(
-      width: 80,
-      child: OutlineButton(
+      width: 90,
+      child: FlatButton(
         onPressed: () {
+          FocusScope.of(context).unfocus();
+          ind =index;
           setState(() {
             meditem = index;
           });
@@ -220,22 +275,100 @@ class _EnterDetailsState extends State<EnterDetails> {
         child: Text(
           text,
           style: TextStyle(
-            color: (meditem == index) ? Colors.red : Colors.black,
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
+            color: (meditem == index) ? Colors.teal.shade300 : Colors.black,
+            fontWeight: (meditem == index) ? FontWeight.w600 :FontWeight.w400,
+            fontSize: (index==1)?15:17,
           ),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        borderSide: const BorderSide(color: Colors.black),
+      ),
+    );
+  }
+  int cnt=0;
+  Widget viewType(int abc)
+  {
+    switch (abc){
+      case 1:
+
+        break;
+      case 2:
+        break;
+      case 3:
+        return Container(
+          width: 300,
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              const Text('Amount of pills',style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Monteserat'
+              )),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.all(3),
+                    height: 40,
+                    width: 70,
+                    child: FloatingActionButton.extended(
+                      heroTag: 'sub',
+                      onPressed: () {
+                        setState(() {
+                          if(cnt>0) cnt--;
+                          else
+                            cnt=0;
+                        });
+                      },
+                      label: const Text('-',style: TextStyle(fontSize: 60,fontWeight: FontWeight.w300),),
+                      backgroundColor: Colors.deepOrange,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(4),
+                    height: 40,
+                    width: 100,
+                    child: Text(
+                      ' '+cnt.toString()+' Pills',style: TextStyle(fontSize: 30),
+                    ),
+                  ),
+                  Container(
+                      height: 40,
+                      width: 70,
+                      child:FloatingActionButton.extended(
+                        onPressed: () {
+                          setState(() {
+                            cnt++;
+                          });
+                        },
+                        label: const Text('+',style: TextStyle(fontSize: 30,fontWeight: FontWeight.w400),),
+                        backgroundColor: Colors.deepOrange,
+                      )
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        break;
+      case 4:
+
+    }
+    return Container(
+      width: 100,
+      height: 300,
+      child:Column(
+
       ),
     );
   }
 
   String SelectedDays(){
     String temp='';
-    for(int i=0;i<WEEK.length;i++)
-    if(WEEK.values.elementAt(i)==true)temp+='1';
-    else temp+='0';
+    for(int i=0;i<WEEK.length;i++) {
+      if(WEEK.values.elementAt(i)==true) {
+      temp+='1';
+    } else temp+='0';
+    }
     return temp;
   }
 
@@ -270,24 +403,38 @@ class _EnterDetailsState extends State<EnterDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add reminder"),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+          backgroundColor: Colors.grey[200],
+          appBar: AppBar(
+            iconTheme: const IconThemeData(
+                color: Colors.blueGrey
+            ),
+            toolbarOpacity: 1,
+
+            toolbarTextStyle: const TextStyle(
+              color: Colors.black,
+            ),
+            backgroundColor: Colors.grey[200],
+            elevation: 0,
+            title: Text("Add reminder",style: TextStyle(
+                color: Colors.grey[700]
+            ),),
+          ),
+      body:SingleChildScrollView(
+            child: Column(
           children: <Widget>[
             Container(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Text(
-                    'Who\'s this for ?',
+                    "Who's this for ?",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   RadioListTile(
+                    activeColor: Colors.blueGrey.shade700,
                     groupValue: radioItem,
                     title: Text('ME'),
                     value: 'Item 1',
@@ -300,13 +447,14 @@ class _EnterDetailsState extends State<EnterDetails> {
                     },
                   ),
                   RadioListTile(
+                    activeColor: Colors.blueGrey.shade700,
                     groupValue: radioItem,
                     title: Text('SOMEONE ELSE'),
                     value: 'Item 2',
                     onChanged: (val) {
                       setState(() {
                         radioItem = val.toString();
-                        isvisibile = !isvisibile;
+                        isvisibile = true;
                         selectedPerson = '';
                       });
                     },
@@ -318,13 +466,17 @@ class _EnterDetailsState extends State<EnterDetails> {
               visible: isvisibile,
               child: Container(
                 height: 60,
-                width: 350,
+                width: 300,
                 child: TextField(
                   controller: person,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    fillColor: Colors.blue.shade100,
-                    border: OutlineInputBorder(),
+                  decoration: const InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                          color: Colors.blueGrey,
+                          width: 3),
+                    ),
+                    hintText: "Enter Name",
                     labelText: 'Name',
                   ),
                 ),
@@ -332,52 +484,132 @@ class _EnterDetailsState extends State<EnterDetails> {
             ),
             Container(
               child: Column(
+                children:const [
+                  Text(
+                    'Medicine Name',
+                    style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Visibility(
+              visible: true,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  TextFormField(
+                  controller: name,
+                  decoration: const InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                          color: Colors.blueGrey,
+                          width: 3),
+                    ),
+                    isDense: true,
+                    labelText: 'Name',
+                    hintText: "Enter Name",
+                  ),
+                ),
+                  Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children:const [
+                        Text(
+                          'Medicine Duration',
+                          style: TextStyle(
+                            color: Colors.deepOrange,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextFormField(
+                    controller: dur,
+                    decoration: const InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                            color: Colors.blueGrey,
+                            width: 3),
+                      ),
+                      isDense: true,
+                      labelText: 'Duration',
+                      hintText: "Duration in days",
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Text(
-                    'Type',
+                    'Select Type',
                     style: TextStyle(
+                      color: Colors.deepOrange,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Container(
-                    height: 10,
-                  ),
-                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 3,horizontal: 10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         SelectMedType("Injection", 1),
                         SelectMedType("Drop", 2),
                         SelectMedType("Tablet", 3),
-                        SelectMedType("Capsule", 4),
+                        SelectMedType("Syrup", 4),
                       ],
                     ),
                   )
                 ],
               ),
             ),
+
+            Visibility(
+              visible: ind>0?true:false,
+              child: viewType(ind),
+            ),
+
             Container(
               margin: EdgeInsets.all(10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   const Text(
                     'Set Time',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   ElevatedButton(
+                      style:ButtonStyle(
+                        elevation: MaterialStateProperty.resolveWith((states) => 0),
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.grey.shade400),
+                      ),
                     onPressed: () {
                       _selectTime(context);
                     },
                     child: Text(
                       time,
-                      style: TextStyle(
-                        fontSize: 30,
+                      style: const TextStyle(
+                        fontFamily: 'Monteserat',
+                        fontSize: 20,
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -434,7 +666,7 @@ class _EnterDetailsState extends State<EnterDetails> {
             Container(
               margin: EdgeInsets.all(10),
               height: 50,
-              width: 200,
+              width: 120,
               child: FloatingActionButton.extended(
                 onPressed: () async {
                   if(selectedPerson=='')selectedPerson=person.text;
