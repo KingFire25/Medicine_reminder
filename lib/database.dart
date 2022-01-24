@@ -29,9 +29,11 @@ class ItemDatabase {
     CREATE TABLE $tablenotes(
       ${Notesfield.id} $idType,
       ${Notesfield.name} $textType,
+      ${Notesfield.medicinename} $textType,
+      ${Notesfield.medicineduration} $integerType,
       ${Notesfield.medtype} $integerType,
-      ${Notesfield.settime} $textType,
-      ${Notesfield.days} $textType
+      ${Notesfield.medicineamount} $integerType,
+      ${Notesfield.settime} $textType
     )
     ''');
   }
